@@ -15,44 +15,84 @@
 ;|--------------------------------------------------------------------------------------|
 
 ; 1 - ligar
-; 2 - sensor de água
-; 3 - sensor da cápsula
-; 4 - café pequeno
-; 5 - café médio
-; 6 - café grande
+; 2 - sensor de �gua
+; 3 - sensor da c�psula
+; 4 - caf� pequeno
+; 5 - caf� m�dio
+; 6 - caf� grande
+; switch 2 = erro 5
+; switch 3 = erro 29
+
+; Alterar o switch 0 para o p3.2
+
+RS equ P1.3
+EN equ P1.2
 
 org 0000h
-	LJMP START
+	LJMP MAIN
+
+org 0003h
+	INT_0:
+    		CPL P1.0  ; Inverte o estado de P1.0 (pode ser um LED, por exemplo)
+    		RETI      ; Retorna da interrup��o
+
+org 0013h
+	INT_1:
+    		CPL P1.0  ; Inverte o estado de P1.0 (pode ser um LED, por exemplo)
+    		RETI      ; Retorna da interrup��o
 
 org 0030h
-
-	START:
 	; DEFINICAO DOS TEXTOS UTILIZADOS
-	msgIniciarParte1: DB 'Pressione o', 0
-	msgIniciarParte2: DB 'botao 1', 0
-	msgTamanhoCafeParte1: DB 'Selecione o cafe', 0
-	msgTamanhoCafeParte2: DB 'Tam: P-4 M-5 G-6', 0
-	cafeSelecionado4: DB 'Fazendo cafe 4', 0
-	cafeSelecionado5: DB 'Fazendo cafe 5', 0
-	cafeSelecionado6: DB 'Fazendo cafe 6', 0
-	
-	; put data in RAM
-	;	MOV 40H, #'#' 
-	;	MOV 41H, #'0'
-	;	MOV 42H, #'*'
-	;	MOV 43H, #'9'
-	;	MOV 44H, #'8'
-	;	MOV 45H, #'7'
-	;	MOV 46H, #'6'
-	;	MOV 47H, #'5'
-	;	MOV 48H, #'4'
-	;	MOV 49H, #'3'
-	;	MOV 4AH, #'2'
-	;	MOV 4BH, #'1'
-		LJMP MAIN
+	msgIniciarParte1: 
+		DB "Pressione o"
+		DB 00H
+	msgIniciarParte2: 
+		DB "botao 1"
+		DB 00H
+	msgTamanhoCafeParte1:
+		DB "Selecione o cafe"
+		DB 00H
+	msgTamanhoCafeParte2: 
+		DB "P-4 M-5 G-6"
+		DB 00H
+	msgSelecionado: 
+		DB "selecionado"
+		DB 00H
+	selecaoCafe4: 
+		DB "Caf� pequeno"
+		DB 00H 
+	selecaoCafe5: 
+		DB "Caf� medio"
+		DB 00H
+	selecaoCafe6: 
+		DB "Caf� grande"
+		DB 00H 
+	fazendoCafe4Parte1: 
+		DB "Fazendo cafe"
+		DB 00H
+	fazendoCafe4Parte2: 
+		DB "pequeno"
+		DB 00H
+	fazendoCafe5Parte1: 
+		DB "Fazendo cafe"
+		DB 00H
+	fazendoCafe5Parte2: 
+		DB "medio"
+		DB 00H
+	fazendoCafe6Parte1: 
+		DB "Fazendo cafe"
+		DB 00H
+	fazendoCafe6Parte2: 
+		DB "grande"
+		DB 00H
+	ErroBotao2: 
+		DB "Erro 05"
+		DB 00H
+	ErroBotao3: 
+		DB "Erro 29"
+		DB 00H
 
 org #0100h
-
 	MAIN:
 		ACALL lcd_init
 	  	ACALL iniciar
@@ -279,30 +319,6 @@ org #0100h
 		CALL delay			; wait for BF to clear
 		RET
 	
-	
-	;Retorna o cursor para primeira posição sem limpar o display
-	retornaCursor:
-		CLR RS	
-		CLR P1.7		; |
-		CLR P1.6		; |
-		CLR P1.5		; |
-		CLR P1.4		; | high nibble set
-	
-		SETB EN		; |
-		CLR EN		; | negative edge on E
-	
-		CLR P1.7		; |
-		CLR P1.6		; |
-		SETB P1.5		; |
-		SETB P1.4		; | low nibble set
-	
-		SETB EN		; |
-		CLR EN		; | negative edge on E
-	
-		CALL delay		; wait for BF to clear
-		RET
-	
-	
 	;Limpa o display
 	clearDisplay:
 		CLR RS	
@@ -330,45 +346,6 @@ org #0100h
 		MOV R7, #50
 		DJNZ R7, $
 		RET
-	
-	
-	; --- Mapeamento de Hardware (8051) ---
-	    RS      equ     P1.3    ;Reg Select ligado em P1.3
-	    EN      equ     P1.2    ;Enable ligado em P1.2
-	
-	
-	org 0000h
-		LJMP START
-	
-	org 0030h
-	; put data in ROM
-	SELECIONE:
-		DB "Selecione o"
-	  DB 00h ;Marca null no fim da String
-	TAMANHO:
-		DB "tamanho"
-	  DB 00h ;Marca null no fim da String
-	DISPLAY:
-	  DB "Display LCD"
-	  DB 00h ;Marca null no fim da String
-	
-	;MAIN
-	org 0100h
-	START:
-	
-	main:
-		ACALL lcd_init
-		MOV A, #06h
-		ACALL posicionaCursor
-		MOV DPTR,#FEI            ;endereço inicial de memória da String FEI
-		ACALL escreveStringROM
-		MOV A, #42h
-	  ACALL posicionaCursor
-		MOV DPTR,#DISPLAY            ;endereço inicial de memória da String Display LCD
-	  ACALL escreveStringROM
-		ACALL clearDisplay
-		JMP main
-	
 	
 	escreveStringROM:
 	  MOV R1, #00h
