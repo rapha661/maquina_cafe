@@ -15,11 +15,11 @@
 ;|--------------------------------------------------------------------------------------|
 
 ; 1 - ligar
-; 2 - sensor de �gua
-; 3 - sensor da c�psula
-; 4 - caf� pequeno
-; 5 - caf� m�dio
-; 6 - caf� grande
+; 2 - sensor de  gua
+; 3 - sensor da c psula
+; 4 - caf  pequeno
+; 5 - caf  m dio
+; 6 - caf  grande
 ; switch 2 = erro 5
 ; switch 3 = erro 29
 
@@ -29,17 +29,17 @@ RS equ P1.3
 EN equ P1.2
 
 org 0000h
-	LJMP MAIN
+	LJMP Start
 
 org 0003h
 	INT_0:
     		CPL P1.0  ; Inverte o estado de P1.0 (pode ser um LED, por exemplo)
-    		RETI      ; Retorna da interrup��o
+    		RETI      ; Retorna da interrup  o
 
 org 0013h
 	INT_1:
     		CPL P1.0  ; Inverte o estado de P1.0 (pode ser um LED, por exemplo)
-    		RETI      ; Retorna da interrup��o
+    		RETI      ; Retorna da interrup  o
 
 org 0030h
 	; DEFINICAO DOS TEXTOS UTILIZADOS
@@ -59,13 +59,13 @@ org 0030h
 		DB "selecionado"
 		DB 00H
 	selecaoCafe4: 
-		DB "Caf� pequeno"
+		DB "Caf  pequeno"
 		DB 00H 
 	selecaoCafe5: 
-		DB "Caf� medio"
+		DB "Caf  medio"
 		DB 00H
 	selecaoCafe6: 
-		DB "Caf� grande"
+		DB "Caf  grande"
 		DB 00H 
 	fazendoCafe4Parte1: 
 		DB "Fazendo cafe"
@@ -92,23 +92,25 @@ org 0030h
 		DB "Erro 29"
 		DB 00H
 
-org #0100h
-	MAIN:
+org 0100h
+	Start:
 		ACALL lcd_init
-	  	ACALL iniciar
-		ACALL menuSelecao
-		MOV A, #6
-	  	ACALL piscaLed
-	  	SETB P1.7
-	  	ACALL selecionaCafe
+		MAIN:
+			ACALL menuInicio
+	  		ACALL iniciar
+			ACALL menuSelecao
+			MOV A, #2h
+	  		ACALL piscaLed
+	  		ACALL selecionaCafe
+			SJMP MAIN
 	
 	iniciar:
-		ACALL menuInicio
-		ESPERAINICIAR:
-		  	CLR F0
+		esperaIniciar:
+			CLR F0
 			ACALL leituraTeclado
-			JNB F0, ROTINA   ;if F0 is clear, jump to ROTINA
-		  	CJNE R0, #1, ESPERAINICIAR
+			JNB F0, esperaIniciar
+			ACALL delay
+		  	CJNE R0, #11, esperaIniciar
 		RET
 
 	menuInicio:
@@ -122,55 +124,249 @@ org #0100h
 		ACALL ESCREVESTRINGROM
 		RET
 	
-	MENUSELECAO:
+	menuSelecao:
+		ACALL clearDisplay
+		mov b, #25h
+		ACALL delay1sec
 		MOV A, #00h
 		ACALL POSICIONACURSOR
 		MOV DPTR,#msgTamanhoCafeParte1
 		ACALL ESCREVESTRINGROM
-		MOV A, #40
+		MOV A, #42h
 		ACALL POSICIONACURSOR
 		MOV DPTR,#msgTamanhoCafeParte2
 		ACALL ESCREVESTRINGROM
 		RET
 		
-	
 	selecionaCafe:
-	  	CLR F0
-	  	ACALL leituraLinha2
+		CLR F0
+	  	ACALL leituraTeclado
 	  	JNB F0, selecionaCafe
-	  	CJNE R0, #4, verifica5
+	  	CJNE R0, #8, verifica5
+		ACALL delay
+		ACALL displayCafePequeno
+		ACALL delay
+		ACALL displayPreparaCafePequeno
+		ACALL ligaMotor
+		ACALL piscaLed
+		sjmp final
+		verifica5:
+			CJNE R0, #7, verifica6
+			ACALL delay
+			ACALL displayCafeMedio
+			ACALL delay
+			ACALL displayPreparaCafeMedio
+			ACALL ligaMotor
+			ACALL piscaLed
+			sjmp final
+		verifica6:
+			CJNE R0, #6, selecionaCafe
+			ACALL delay
+			ACALL displayCafeGrande
+			ACALL delay
+			ACALL displayPreparaCafeGrande
+			ACALL ligaMotor
+			ACALL piscaLed
+			sjmp final
+		final:
+			ACALL clearDisplay
+			mov b, #25h
+			ACALL delay1sec
+			ACALL desligaMotor
+			ret
 
-	verifica5:
-		CJNE R0, #5, verifica6
+	desligaMotor:
+		CLR P3.0
+		SETB P3.1
+		ret
 
-	verifica6:
-		CJNE R0, #6, selecionaCafe
+	displayCafePequeno:
+		ACALL clearDisplay
+		mov b, #25h
+		ACALL delay1sec
+		MOV A, #00h
+		ACALL POSICIONACURSOR
+		MOV DPTR,#selecaoCafe4
+		ACALL ESCREVESTRINGROM
+		MOV A, #42h
+		ACALL POSICIONACURSOR
+		MOV DPTR,#msgSelecionado
+		ACALL ESCREVESTRINGROM
+		RET
 
-	leituraLinha2:
-		MOV R0, #0
+	displayCafeMedio:
+		ACALL clearDisplay
+		mov b, #25h
+		ACALL delay1sec
+		MOV A, #00h
+		ACALL POSICIONACURSOR
+		MOV DPTR,#selecaoCafe5
+		ACALL ESCREVESTRINGROM
+		MOV A, #42h
+		ACALL POSICIONACURSOR
+		MOV DPTR,#msgSelecionado
+		ACALL ESCREVESTRINGROM
+		RET
+
+	displayCafeGrande:
+		ACALL clearDisplay
+		mov b, #25h
+		ACALL delay1sec
+		MOV A, #00h
+		ACALL POSICIONACURSOR
+		MOV DPTR,#selecaoCafe6
+		ACALL ESCREVESTRINGROM
+		MOV A, #42h
+		ACALL POSICIONACURSOR
+		MOV DPTR,#msgSelecionado
+		ACALL ESCREVESTRINGROM
+		RET
+
+	displayPreparaCafePequeno:
+		ACALL clearDisplay
+		mov b, #25h
+		ACALL delay1sec
+		MOV A, #00h
+		ACALL POSICIONACURSOR
+		MOV DPTR,#fazendoCafe4Parte1
+		ACALL ESCREVESTRINGROM
+		MOV A, #42h
+		ACALL POSICIONACURSOR
+		MOV DPTR,#fazendoCafe4Parte2
+		ACALL ESCREVESTRINGROM
+		RET
 	
-		; scan row2
+	displayPreparaCafeMedio:
+		ACALL clearDisplay
+		mov b, #25h
+		ACALL delay1sec
+		MOV A, #00h
+		ACALL POSICIONACURSOR
+		MOV DPTR,#fazendoCafe5Parte1
+		ACALL ESCREVESTRINGROM
+		MOV A, #42h
+		ACALL POSICIONACURSOR
+		MOV DPTR,#fazendoCafe5Parte2
+		ACALL ESCREVESTRINGROM
+		RET
+
+	displayPreparaCafeGrande:
+		ACALL clearDisplay
+		mov b, #25h
+		ACALL delay1sec
+		MOV A, #00h
+		ACALL POSICIONACURSOR
+		MOV DPTR,#fazendoCafe6Parte1
+		ACALL ESCREVESTRINGROM
+		MOV A, #42h
+		ACALL POSICIONACURSOR
+		MOV DPTR,#fazendoCafe6Parte2
+		ACALL ESCREVESTRINGROM
+		RET
+
+	ligaMotor:
+		SETB P3.0
+		CLR P3.1
+		RET
+	
+	piscaLed:
+		CLR P1.7
+		ACALL delay
+		SETB P1.7
+		CLR P1.6
+		ACALL delay
+		SETB P1.6
+		CLR P1.5
+		ACALL delay
+		SETB P1.5
+		CLR P1.4
+		ACALL delay
+		SETB P1.4
+		CLR P1.3
+		ACALL delay
+		SETB P1.3
+		CLR P1.2
+		ACALL delay
+		SETB P1.2
+		CLR P1.1
+		ACALL delay
+		SETB P1.1
+		CLR P1.0
+		ACALL delay
+		SETB P1.0
+		ACALL piscaLedReverso
+		ret
+
+	piscaLedReverso:
+		CLR P1.0
+		ACALL delay
+		SETB P1.0
+		CLR P1.1
+		ACALL delay
+		SETB P1.1
+		CLR P1.2
+		ACALL delay
+		SETB P1.2
+		CLR P1.3
+		ACALL delay
+		SETB P1.3
+		CLR P1.4
+		ACALL delay
+		SETB P1.4
+		CLR P1.5
+		ACALL delay
+		SETB P1.5
+		CLR P1.6
+		ACALL delay
+		SETB P1.6
+		CLR P1.7
+		ACALL delay
+		SETB P1.7
+		ret
+	
+	delay1sec:
+		rotina:
+			ACALL delay
+			djnz b, rotina
+		ret
+
+	leituraTeclado:
+		MOV R0, #0
+
+		MOV P0, #0FFh	
+		CLR P0.0
+		CALL colScan
+		JB F0, finish
+
+		SETB P0.0
+		CLR P0.1
+		CALL colScan
+		JB F0, finish
+
 		SETB P0.1
 		CLR P0.2
 		CALL colScan
 		JB F0, finish
-	
-	leituraTeclado:
-		MOV R0, #0			; clear R0 - the first key is key0
-	
-		; scan row2
-		SETB P0.1			; set row1
-		CLR P0.2			; clear row2
-		CALL colScan		; call column-scan subroutine
-		JB F0, finish		; | if F0 is set, jump to end of program 
-							; | (because the pressed key was found and its number is in  R0)
-		; scan row3
-		SETB P0.2			; set row2
-		CLR P0.3			; clear row3
-		CALL colScan		; call column-scan subroutine
-		JB F0, finish		; | if F0 is set, jump to end of program 
-							; | (because the pressed key was found and its number is in  R0)
-	finish:
+
+		SETB P0.2
+		CLR P0.3
+		CALL colScan
+		JB F0, finish
+		finish:
+			RET; | (because the pressed key was found and its number is in  R0)
+
+	escreveStringROM:
+	  MOV R1, #00h
+		; Inicia a escrita da String no Display LCD
+	loop:
+	  MOV A, R1
+		MOVC A,@A+DPTR 	 ;l  da mem ria de programa
+		JZ final2	; if A is 0, then end of data has been reached - jump out of loop
+		ACALL sendCharacter	; send data in A to LCD module
+		INC R1			; point to next piece of data
+	   MOV A, R1
+		JMP loop		; repeat
+	final2:
 		RET
 	
 	; column-scan subroutine
@@ -186,13 +382,7 @@ org #0100h
 		SETB F0				; key found - set F0
 		RET					; and return from subroutine
 	
-	
-	
-	
-	; initialise the display
-	; see instruction set for details
 	lcd_init:
-	
 		CLR RS		; clear RS - indicates that instructions are being sent to the module
 	
 	; function set	
@@ -347,16 +537,3 @@ org #0100h
 		DJNZ R7, $
 		RET
 	
-	escreveStringROM:
-	  MOV R1, #00h
-		; Inicia a escrita da String no Display LCD
-	loop:
-	  MOV A, R1
-		MOVC A,@A+DPTR 	 ;lê da memória de programa
-		JZ finish		; if A is 0, then end of data has been reached - jump out of loop
-		ACALL sendCharacter	; send data in A to LCD module
-		INC R1			; point to next piece of data
-	   MOV A, R1
-		JMP loop		; repeat
-	finish:
-		RET
