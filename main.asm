@@ -301,6 +301,7 @@ org 0100h
         	ACALL clearDisplay
 		mov b, #10h
 		ACALL delayX
+		ret
         
     displayFinal:
         	MOV A, #02h
