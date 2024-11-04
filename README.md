@@ -34,6 +34,14 @@ O projeto visa contemplar todos os conceitos vistos durante o semestre da discip
 
 ![cafeSendoPreparado](imgs/cafeSendoPreparado.png)
 
+<div>Caso o usuário, no começo, tenha apertado o 2 aparece esse display</div>
+
+![erro5](imgs/erro5.png)
+
+<div>Caso o usuário, no começo, tenha apertado o 3 aparece esse display</div>
+
+![erro29](imgs/erro29.png)
+
 <div>Mensagem avisando que o café está pronto e o motor para.</div>
 
 ![cafePronto](imgs/cafePronto.png)
