@@ -463,6 +463,7 @@ org 0150h
 			djnz b, rotina
 		ret
 
+	; Código retirado do material do professor da disciplina.
 	leituraTeclado:
 		MOV R0, #0
 
@@ -488,6 +489,7 @@ org 0150h
 		finish:
 			RET
 
+	; Código retirado do material do professor da disciplina.
 	escreveStringROM:
 	  MOV R1, #00h
 	loop:
@@ -500,7 +502,8 @@ org 0150h
 		JMP loop
 	final2:
 		RET
-	
+
+	; Código retirado do material do professor da disciplina.
 	colScan:
 		JNB P0.4, gotKey
 		INC R0
@@ -512,7 +515,8 @@ org 0150h
 	gotKey:
 		SETB F0
 		RET
-	
+
+	; Código retirado do material do professor da disciplina.
 	lcd_init:
 		CLR RS
 	
@@ -569,7 +573,8 @@ org 0150h
 	
 		CALL delay
 		RET
-	
+
+	; Código retirado do material do professor da disciplina.
 	sendCharacter:
 		SETB RS
 		MOV C, ACC.7
@@ -599,6 +604,8 @@ org 0150h
 		CALL delay
 		CALL delay
 		RET
+
+	; Código retirado do material do professor da disciplina.
 	posicionaCursor:
 		CLR RS	
 		SETB P1.7
@@ -627,7 +634,8 @@ org 0150h
 		CALL delay
 		CALL delay
 		RET
-	
+
+	; Código retirado do material do professor da disciplina.
 	clearDisplay:
 		CLR RS	
 		CLR P1.7
