@@ -52,7 +52,7 @@ org 0030h
 		DB "5-Mocha"
 		DB 00H
 	msgSelecaoCafeParte4:
-		DB "6-Cappuccino"
+		DB "6-Capuccino"
 		DB 00H
 	msgTamanhoCafeParte1:
 		DB "Selecione o tam"
